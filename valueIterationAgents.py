@@ -59,12 +59,23 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.values = util.Counter() # A Counter is a dict with default 0
         self.runValueIteration()
 
-    def runValueIteration(self):
+    def runValueIteration(self): #TODO
         """
           Run the value iteration algorithm. Note that in standard
           value iteration, V_k+1(...) depends on V_k(...)'s.
         """
         "*** YOUR CODE HERE ***"
+        for i in range(self.iterations):
+            for state in self.mdp.getStates():
+                if self.mdp.isTerminal(state):
+                    pass
+                maxValue = float('-inf')
+                for action in self.mdp.getPossibleActions(state):
+                    qValue = self.getQValue(state, action)
+                    maxValue = max(maxValue, qValue)
+                if not maxValue == float('-inf'):
+                    self.values[state] = maxValue
+                print(self.values)
 
     def getValue(self, state):
         """
@@ -72,15 +83,18 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         return self.values[state]
 
-    def computeQValueFromValues(self, state, action):
+    def computeQValueFromValues(self, state, action): #TODO
         """
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        sum = 0
+        for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
+            sum += prob * (self.mdp.getReward(state, action, nextState) + (self.discount * self.values[nextState]))
+        return sum
 
-    def computeActionFromValues(self, state):
+    def computeActionFromValues(self, state): #TODO
         """
           The policy is the best action in the given state
           according to the values currently stored in self.values.
@@ -90,7 +104,19 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        maxValue = float('-inf')
+        maxAction = None
+
+        for action in self.mdp.getPossibleActions(state):
+            qValue = self.computeQValueFromValues(state, action)
+            if qValue > maxValue:
+                maxValue = qValue
+                maxAction = action
+        if not maxValue == float('-inf'):
+            return maxAction
+        else:
+            return None
+
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
